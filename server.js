@@ -1,10 +1,12 @@
+require('dotenv').config()
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
-const fetch = require("node-fetch");
-require('dotenv').config()
-const app = express();
+const fetch = require('node-fetch');
+const cors = require('cors');
 
+
+// graphql schema
 const schema = buildSchema(`
 type Test {
   message: String!
@@ -47,9 +49,6 @@ const root = {
         const res = await fetch(url)
         const json = await res.json()
 
-        console.log(json)
-
-
         if (json.cod == '404') {
             return { temperature: null, description: null, feels_like: null, temp_min: null, temp_max: null, pressure: null, humidity: null, cod: 404, message: "Invalid Zip"}
         } else {
@@ -60,7 +59,8 @@ const root = {
             const temp_max = json.main.temp_max
             const pressure = json.main.pressure
             const humidity = json.main.humidity
-            return { temperature, description, feels_like, temp_min, temp_max, pressure, humidity}
+            const cod = json.cod
+            return { temperature, description, feels_like, temp_min, temp_max, pressure, humidity, cod}
         }
       },
       getWeekForecast: async () => {
@@ -78,8 +78,14 @@ const root = {
         }
             
         return { weekForecast }
-      }
+      },
   }
+
+// create an express app
+const app = express();
+
+// apply middleware
+app.use(cors());
 
 app.use('/graphql', graphqlHTTP({
     schema,
