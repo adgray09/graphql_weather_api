@@ -49,7 +49,7 @@ const root = {
         const res = await fetch(url)
         const json = await res.json()
 
-        if (json.cod == '404') {
+        if (json.cod != '200') {
             return { temperature: null, description: null, feels_like: null, temp_min: null, temp_max: null, pressure: null, humidity: null, cod: 404, message: "Invalid Zip"}
         } else {
             const temperature = json.main.temp
